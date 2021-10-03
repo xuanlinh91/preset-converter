@@ -189,9 +189,6 @@ function xmpArrClean($xmp)
         }
     }
 
-    if (isset($xmp["ProcessVersion"])) {
-        $xmp["ProcessVersion"] = strval($xmp["ProcessVersion"]);
-    }
     return $xmp;
 }
 
@@ -228,7 +225,9 @@ $lrTemplateEnd =
 
 $result = $lrTemplateStart;
 foreach ($xmp as $key => $value) {
-    if (is_numeric($value) || $value === "False" || $value === "True") {
+    if ($key === "ProcessVersion") {
+        $result .= "\t\t\t" . $key . ' = "' . strtolower($value) . '",' . "\n";
+    } else if (is_numeric($value) || $value === "False" || $value === "True") {
         $result .= "\t\t\t" . $key . ' = ' . strtolower($value) . ',' . "\n";
     } elseif (is_array($value)) {
         $result .= "\t\t\t" . $key . ' = {';
