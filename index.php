@@ -275,11 +275,11 @@
                                                 style="visibility: hidden; animation-duration: 1s; animation-delay: 0.1s; animation-name: none;">
                                         <p>I am a programmer and also a passionate photographer. I wrote this tool to contribute a little bit
                                             of knowledge to the Vietnamese photography community as well as the world community. Hopefully this tool will save your time and resources.
-                                            If it feels good, please donate to help me maintain this tool. That was a great motivator for me to continue to study more useful things..
+                                            If it feels good, please <a href="https://www.buymeacoffee.com/xuanlinh91">donate</a> to help me maintain this tool. That was a great motivator for me to continue to study more useful things..
                                         </p>
                                         <p><i>Tôi là 1 lập trình viên và cũng là người say mê nhiếp ảnh
                                             Tôi viết ra công cụ này nhằm góp 1 chút kiến thức nhỏ bé cho cộng đồng nhiếp ảnh việt nam cũng như thế giới.
-                                            Hi vọng công cụ này sẽ giúp tiết kiệm thời gian và tài nguyên của các bạn. Nếu cảm thấy nó có ích, hãy donate ủng hộ tôi duy trì website này.
+                                            Hi vọng công cụ này sẽ giúp tiết kiệm thời gian và tài nguyên của các bạn. Nếu cảm thấy nó có ích, hãy <a href="https://www.buymeacoffee.com/xuanlinh91">donate</a> ủng hộ tôi duy trì website này.
                                             Đó là động lực rất lớn giúp tôi tiếp tục nghiên cứu thêm nhiều điều hữu ích khác.
                                             </i></p>
                                         <footer class="about-quote-author"><a title="facebook" target="_blank"
