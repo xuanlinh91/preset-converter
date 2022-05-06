@@ -416,14 +416,14 @@ function getLrArray($lrContent)
 
 }
     if (isset($_FILES['preset'])) {
-        // foreach ($_FILES['preset']['tmp_name'] as $key => $file) {            
+        // foreach ($_FILES['preset']['tmp_name'] as $key => $file) {    
             $file_name = $_FILES['preset']['name'];
             $presetName = explode('.', $file_name);
-            $presetType = $presetName[1];
-            $presetName = $presetName[0];
+            $presetType = pathinfo($file_name, PATHINFO_EXTENSION);
+            $presetName = str_replace("." . $presetType, "", $file_name);
             $fileContent = file_get_contents($_FILES['preset']['tmp_name']);
 
-            if ($presetType == 'xmp') {
+        if ($presetType == 'xmp') {
                 $presetName .= ".lrtemplate";
                 $presetArr = getXmpArray($fileContent);
                 $presetArr = xmpArrClean($presetArr);

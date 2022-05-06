@@ -233,7 +233,7 @@
                                     <p></p>
                                 </h3>
                                 <div class="row mt-60 mt-xs-20 convert-form wow fadeInUp" style="visibility: visible; animation-duration: 3s; animation-delay: 0.5s; animation-name: fadeInUp;">
-                                    <div class="col-md-12 text-center">
+                                    <div class="col-md-12 mb-2 text-center" style="margin-bottom: 80px">
                                         <form action="process.php" method="post" enctype="multipart/form-data">
                                             <label for="file" class="form-control custom-file-upload">
                                                 <span>Choose template file (1 file at a time)</span>
@@ -245,6 +245,7 @@
                                             <label class="error-noti"></label>
                                         </form>
                                     </div>
+                                    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="xuanlinh91" data-color="#FF5F5F" data-emoji=""  data-font="Cookie" data-text="Donate now" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
                                 </div>
                             </div>
                         </div>
