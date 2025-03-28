@@ -1,9 +1,36 @@
 version: '3.8'
+
 services:
-  php-apache-environment:
-    container_name: php-apache
-    image: php:8.0-apache
-    volumes:
-      - ./:/var/www/html/
+  web:
+    image: php:8.2-apache
     ports:
-      - 8080:80
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=php_app
+      - MYSQL_USER=php_user
+      - MYSQL_PASSWORD=php_password
+    # Install PHP extensions and configure Apache
+    command: >
+      bash -c "docker-php-ext-install pdo pdo_mysql &&
+               a2enmod rewrite &&
+               apache2-foreground"
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=php_app
+      - MYSQL_USER=php_user
+      - MYSQL_PASSWORD=php_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data: 
