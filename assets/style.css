@@ -80,26 +80,77 @@
 }
 
 .convert-form {
-  width: 50%;
+  width: 100%;
+  max-width: 600px;
   margin: 0 auto;
+  padding: 0 15px;
 }
 
-.convert-form input#file {
-  width: 76%;
+.convert-form .custom-file-upload {
+  width: 75%;
   float: left;
-  margin-right: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  height: 40px;
+  line-height: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 15px;
 }
+
 .convert-form input#submit {
   width: 20%;
+  min-width: 80px;
+  height: 40px;
   background-color: #00b2ca !important;
   color: #ffffff !important;
   border-color: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.convert-form input#submit:hover {
+  background-color: #008fa3 !important;
 }
 
 .error-noti {
-  margin-top: 10px;
-  float: left;
+  width: 100%;
+  text-align: center;
+  margin-top: 15px;
+  color: #ff5f5f;
   display: none;
+  clear: both;
+  padding-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .convert-form {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
+  .convert-form .custom-file-upload {
+    width: 70%;
+    font-size: 14px;
+  }
+
+  .convert-form input#submit {
+    width: 25%;
+  }
+}
+
+@media (max-width: 480px) {
+  .convert-form .custom-file-upload {
+    width: 65%;
+    margin-right: 5px;
+  }
+
+  .convert-form input#submit {
+    width: 30%;
+  }
 }
 
 /*blockquote {*/

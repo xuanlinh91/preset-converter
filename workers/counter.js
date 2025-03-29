@@ -1,75 +1,60 @@
 export default {
-    async fetch(request, env, ctx) {
-      // Handle CORS preflight
-      if (request.method === "OPTIONS") {
-        return new Response(null, {
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        });
-      }
-  
-      // Handle only POST requests
-      if (request.method !== "POST") {
-        return new Response("Method not allowed", { status: 405 });
-      }
-  
-      try {
-        const formData = await request.formData();
-        const presetFile = formData.get('preset');
-        
-        if (!presetFile) {
-          return new Response('No file provided', { status: 400 });
-        }
-  
-        // Read the file content
-        const content = await presetFile.text();
-        
-        // Perform the conversion logic
-        const convertedContent = await convertPreset(content, presetFile.name);
-        
-        // Return the converted file
-        return new Response(convertedContent, {
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            'Content-Disposition': `attachment; filename="converted-${presetFile.name}"`,
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      } catch (error) {
-        return new Response('Conversion failed: ' + error.message, { 
-          status: 500,
-          headers: {
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      }
+  async fetch(request, env, ctx) {
+    // Handle CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
     }
-  };
-  
-  async function convertPreset(content, filename) {
-    // Implement your preset conversion logic here
-    if (filename.endsWith('.xmp')) {
-      // Convert from XMP to LRTEMPLATE
-      return convertXMPtoLRTemplate(content);
-    } else if (filename.endsWith('.lrtemplate')) {
-      // Convert from LRTEMPLATE to XMP
-      return convertLRTemplateToXMP(content);
-    }
-    
-    throw new Error('Unsupported file format');
+
+    const today = new Date().toISOString().split('T')[0];
+    const week = getWeekNumber(new Date());
+    const month = new Date().toISOString().slice(0, 7);
+
+    // Increment counters
+    await Promise.all([
+      incrementCounter(env.VISITOR_COUNTER, 'today_' + today),
+      incrementCounter(env.VISITOR_COUNTER, 'week_' + week),
+      incrementCounter(env.VISITOR_COUNTER, 'month_' + month),
+      incrementCounter(env.VISITOR_COUNTER, 'total')
+    ]);
+
+    // Get counter values
+    const [todayCount, weekCount, monthCount, totalCount] = await Promise.all([
+      env.VISITOR_COUNTER.get('today_' + today) || '0',
+      env.VISITOR_COUNTER.get('week_' + week) || '0',
+      env.VISITOR_COUNTER.get('month_' + month) || '0',
+      env.VISITOR_COUNTER.get('total') || '0'
+    ]);
+
+    return new Response(JSON.stringify([
+      parseInt(todayCount),
+      parseInt(weekCount),
+      parseInt(monthCount),
+      parseInt(totalCount)
+    ]), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
   }
-  
-  function convertXMPtoLRTemplate(content) {
-    // Implement XMP to LRTemplate conversion
-    // This needs to replicate your PHP conversion logic
-    return content; // Placeholder
-  }
-  
-  function convertLRTemplateToXMP(content) {
-    // Implement LRTemplate to XMP conversion
-    // This needs to replicate your PHP conversion logic
-    return content; // Placeholder
-  }
+};
+
+async function incrementCounter(KV, key) {
+  const value = await KV.get(key) || '0';
+  await KV.put(key, (parseInt(value) + 1).toString());
+}
+
+function getWeekNumber(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return d.getFullYear() + '-W' + weekNo;
+}
