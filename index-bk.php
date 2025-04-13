@@ -3,16 +3,16 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="assets/18210.css" media="all">
-    <link rel="shortcut icon" href="favicon.ico" />
+    <link ref="shortcut icon" href="favicon.icon" />
     <link rel="stylesheet" href="assets/font-awesome.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Adobe Preset Converter</title>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+    <link rel="dns-prefetch" href="http://fonts.googleapis.com/">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="assets/bg_moving.js"></script>
     <script>
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            alert("This application works best on desktop devices. Some features may be limited on mobile.");
+            alert("Please visit us in PC!");
         }
         $(function() {
             var p = [0, 0], speed = 10, runMe = function () {
@@ -146,10 +146,6 @@
     }
     </style>
     <meta name="generator" content="Powered by Preset Converter - Convert between adobe camera raw and lightroom presets">
-    <meta name="description" content="Convert between Adobe Camera Raw and Lightroom presets">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <!--[if lte IE 9]>
     <link
             rel="stylesheet" type="text/css"
@@ -190,13 +186,13 @@
 <nav class="main-nav white transparent stick-fixed js-transparent">
     <div class="full-wrapper relative clearfix">
         <div class="nav-logo-wrap">
-            <a href="/" class="logo"><span class="higl higl-first">P</span>reset<span class="higl">C</span>onverter</a>
+            <a href="http://presetconverter.com" class="logo"><span class="higl higl-first">P</span>reset<span class="higl">C</span>onverter</a>
         </div>
         <div class="navbar-mobile" style="height: 75px; line-height: 75px; width: 75px;"><i class="fa fa-bars"></i>
         </div>
         <div class="inner-nav navbar-desktop">
             <ul class="clearlist scroll scroll-nav">
-                <li><a href="https://presetconverter.net"
+                <li><a href="http://presetconverter.com"
                        style="height: 75px; line-height: 75px;">Home</a></li>
                 <li><a href="#section_about"
                        style="height: 75px; line-height: 75px;">About</a></li>
@@ -238,9 +234,9 @@
                                 </h3>
                                 <div class="row mt-60 mt-xs-20 convert-form wow fadeInUp" style="visibility: visible; animation-duration: 3s; animation-delay: 0.5s; animation-name: fadeInUp;">
                                     <div class="col-md-12 mb-2 text-center" style="margin-bottom: 80px">
-                                        <form action="https://converter.vsiitest123456.workers.dev" id="convertForm" method="post" enctype="multipart/form-data" class="convert-form">
+                                        <form action="process.php" method="post" enctype="multipart/form-data">
                                             <label for="file" class="form-control custom-file-upload">
-                                                <span>Choose template file</span>
+                                                <span>Choose template file (1 file at a time)</span>
                                                 <input class="template-file-chooser" type="file"
                                                        name="preset" id="file" required=""
                                                        accept=".xmp,.lrtemplate">
@@ -276,7 +272,7 @@
                                 <div class="col-md-8 col-md-offset-2 text-center">
                                     <blockquote data-wow-delay="0.1s" data-wow-duration="1s"
                                                 class="about-quote wow fadeInUp"
-                                                style="visibility: visible; animation-duration: 1s; animation-delay: 0.1s; animation-name: fadeInUp;">
+                                                style="visibility: hidden; animation-duration: 1s; animation-delay: 0.1s; animation-name: none;">
                                         <p>I am a programmer and also a passionate photographer. I wrote this tool to contribute a little bit
                                             of knowledge to the Vietnamese photography community as well as the world community. Hopefully this tool will save your time and resources.
                                             If it feels good, please <b style="color: red"><a href="https://www.buymeacoffee.com/xuanlinh91">donate</a></b> to help me maintain this tool. That will be a great motivator for me to continue to study more useful things..
@@ -300,39 +296,41 @@
                                     </div>
                                 </div>
                                 <div class="row mt-60">
+                                    <?php
+                                        require_once "counter/counterprocess.php";
+                                        date_default_timezone_set("Asia/Ho_Chi_Minh");
+                                        $counterResult = counter();
+                                        foreach ($counterResult as $key => $value) {
+                                            if (is_null($value) || !is_numeric($value)) {
+                                                $counterResult[$key] = 0;
+                                            }
+                                        }
+                                    ?>
                                     <div class="col-md-3 col-sm-6 text-center">
                                         <div class="fact-item">
-                                            <div class="fact-number">
-                                                <i class="fa fa-male"></i>
-                                                <span class="focus-number" data-counter="today">0</span>
-                                            </div>
+                                            <div class="fact-number"><i class="fa fa-male"></i><span
+                                                    class="focus-number"><?php echo $counterResult[0];?></span></div>
                                             <h5 class="fact-desc alt-font">Today</h5>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-6 text-center">
                                         <div class="fact-item">
-                                            <div class="fact-number">
-                                                <span class="fa fa-street-view"></span>
-                                                <span class="focus-number" data-counter="week">0</span>
-                                            </div>
+                                            <div class="fact-number"><span class="fa fa-street-view"></span><span
+                                                    class="focus-number"><?php echo $counterResult[1];?></span></div>
                                             <h5 class="fact-desc alt-font">This week</h5>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-6 text-center">
                                         <div class="fact-item">
-                                            <div class="fact-number">
-                                                <span class="fa fa-eye"></span>
-                                                <span class="focus-number" data-counter="month">0</span>
-                                            </div>
+                                            <div class="fact-number"><span class="fa fa-eye"></span><span
+                                                    class="focus-number"><?php echo $counterResult[2];?></span></div>
                                             <h5 class="fact-desc alt-font">This month</h5>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-6 text-center">
                                         <div class="fact-item">
-                                            <div class="fact-number">
-                                                <span class="fa fa-camera"></span>
-                                                <span class="focus-number" data-counter="total">0</span>
-                                            </div>
+                                            <div class="fact-number"><span class="fa fa-camera"></span><span
+                                                    class="focus-number"><?php echo $counterResult[3];?></span></div>
                                             <h5 class="fact-desc alt-font">Total</h5>
                                         </div>
                                     </div>
@@ -379,32 +377,10 @@
         }
     });
 </script>
-
-<script>
-// Configuration for local development
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const COUNTER_URL = IS_LOCAL 
-    ? 'http://localhost:3000/counter' 
-    : 'https://counter.vsiitest123456.workers.dev';
-
-// Update the counter function
-async function getCounterData() {
-    try {
-        const response = await fetch(COUNTER_URL);
-        const data = await response.json();
-        
-        document.querySelector('[data-counter="today"]').textContent = data[0];
-        document.querySelector('[data-counter="week"]').textContent = data[1];
-        document.querySelector('[data-counter="month"]').textContent = data[2];
-        document.querySelector('[data-counter="total"]').textContent = data[3];
-    } catch (error) {
-        console.error('Error fetching counter data:', error);
-        ['today', 'week', 'month', 'total'].forEach(period => {
-            document.querySelector(`[data-counter="${period}"]`).textContent = '0';
-        });
-    }
-}
-
+<script type="text/javascript">
+var infolinks_pid = 3227919;
+var infolinks_wsid = 0;
 </script>
+<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
 </body>
 </html>

@@ -1,5 +1,59 @@
-// Helper functions
-export const settingMapCmToLr = [
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
+    }
+
+
+    const formData = await request.formData();
+    const file = formData.get('preset');
+    
+    if (!file) {
+      return new Response('No file uploaded', { status: 400 });
+    }
+
+    const fileName = file.name;
+    const presetType = fileName.split('.').pop().toLowerCase();
+    const presetName = fileName.replace(`.${presetType}`, '');
+    const fileContent = await file.text();
+    console.log(fileName);
+    console.log(presetName);
+    console.log(presetType);
+
+    let content;
+    let outputFileName = "outputFileName";
+
+    if (presetType === 'xmp') {
+      outputFileName = `${presetName}.lrtemplate`;
+      const presetArr = getXmpArray(fileContent);
+      const cleanPresetArr = xmpArrClean(presetArr);
+      content = xmpToLr(cleanPresetArr, presetName);
+    } else if (presetType === 'lrtemplate') {
+      outputFileName = `${presetName}.xmp`;
+      const presetArr = getLrArray(fileContent);
+      const cleanPresetArr = lrArrClean(presetArr);
+      content = lrToXmp(cleanPresetArr);
+    } else {
+      return new Response('Invalid file type', { status: 400 });
+    }
+
+    // console.log("content");
+    // console.log(content);
+
+    return new Response(content, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${outputFileName}"`,
+        'Access-Control-Allow-Origin': 'https://presetconverter.net',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+};
+
+
+// Helper constants
+const settingMapCmToLr = [
   'ToneCurve',
   'ToneCurveRed',
   'ToneCurveGreen',
@@ -7,7 +61,7 @@ export const settingMapCmToLr = [
   'ToneCurveName',
 ];
 
-export const settingMapLrToCm = [
+const settingMapLrToCm = [
   'orientation',
   'EnableLensCorrections',
   'CropConstrainToWarp',
@@ -17,7 +71,7 @@ export const settingMapLrToCm = [
   'PostCropVignetteHighlightContrast',
 ];
 
-export function getXmpArray(xmpRaw) {
+function getXmpArray(xmpRaw) {
   const xmpArr = {};
   const settings = {
     //WhiteBalance
@@ -180,56 +234,45 @@ export function getXmpArray(xmpRaw) {
   return xmpArr;
 }
 
-export function xmpArrClean(xmp) {
+function xmpArrClean(xmp) {
   for (const key of settingMapCmToLr) {
-    if (xmp[key]) {
-      delete xmp[key];
-    }
+    delete xmp[key];
   }
   return xmp;
 }
 
-export function lrArrClean(lrArr) {
-  for (const key of settingMapLrToCm) {
-    if (lrArr[key]) {
-      delete lrArr[key];
-    }
-  }
-  return lrArr;
-}
-
-export function xmpToLr(xmp, presetName) {
+function xmpToLr(xmp, presetName) {
   const settings = Object.entries(xmp)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, value]) => {
-        if (key === "ProcessVersion") {
-          return `\t\t\t${key} = "${value.toLowerCase()}",`;
-        } else if (Array.isArray(value)) {
-          const points = value.map(v => {
-            const [x, y] = v.split(', ');
-            return `\n\t\t\t\t${x},\n\t\t\t\t${y},`;
-          }).join('');
-          return `\t\t\t${key} = {${points}\n\t\t\t},`;
-        } else {
-          // Check if value is numeric or boolean
-          if (value === "True" || value === "False") {
-            return `\t\t\t${key} = ${value.toLowerCase()},`;
-          } else if (!isNaN(parseFloat(value)) && value !== "") {
-            // Preserve original decimal places by checking if the original value had them
-            const hasDecimal = value.includes('.');
-            const numValue = parseFloat(value);
-            if (hasDecimal) {
-              // Get the number of decimal places from the original string
-              const decimalPlaces = value.split('.')[1]?.length || 0;
-              return `\t\t\t${key} = ${numValue.toFixed(decimalPlaces)},`;
-            }
-            return `\t\t\t${key} = ${numValue},`;
-          } else {
-            return `\t\t\t${key} = "${value}",`;
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => {
+      if (key === "ProcessVersion") {
+        return `\t\t\t${key} = "${value.toLowerCase()}",`;
+      } else if (Array.isArray(value)) {
+        const points = value.map(v => {
+          const [x, y] = v.split(', ');
+          return `\n\t\t\t\t${x},\n\t\t\t\t${y},`;
+        }).join('');
+        return `\t\t\t${key} = {${points}\n\t\t\t},`;
+      } else {
+        // Check if value is numeric or boolean
+        if (value === "True" || value === "False") {
+          return `\t\t\t${key} = ${value.toLowerCase()},`;
+        } else if (!isNaN(parseFloat(value)) && value !== "") {
+          // Preserve original decimal places by checking if the original value had them
+          const hasDecimal = value.includes('.');
+          const numValue = parseFloat(value);
+          if (hasDecimal) {
+            // Get the number of decimal places from the original string
+            const decimalPlaces = value.split('.')[1]?.length || 0;
+            return `\t\t\t${key} = ${numValue.toFixed(decimalPlaces)},`;
           }
+          return `\t\t\t${key} = ${numValue},`;
+        } else {
+          return `\t\t\t${key} = "${value}",`;
         }
-      })
-      .join('\n');
+      }
+    })
+    .join('\n');
 
   return `s = {
     id = "1",
@@ -246,7 +289,52 @@ ${settings}
 }`;
 }
 
-export function lrToXmp(lrSettings) {
+function lrArrClean(lrArr) {
+  for (const key of settingMapLrToCm) {
+    delete lrArr[key];
+  }
+  return lrArr;
+}
+
+function getLrArray(lrContent) {
+  const settingsMatch = lrContent.match(/settings = {([\n\s]*)([^>]*)},([\n\s]*)uuid/);
+  const settings = settingsMatch ? settingsMatch[2] : '';
+  
+  const toneCurveTypes = [
+    'ToneCurvePV2012',
+    'ToneCurvePV2012Blue',
+    'ToneCurvePV2012Green',
+    'ToneCurvePV2012Red'
+  ];
+
+  const toneCurve = {};
+  for (const type of toneCurveTypes) {
+    const match = settings.match(new RegExp(`${type} = {([0-9\\s\\n\\,\\.-]*)},`));
+    if (match) {
+      toneCurve[type] = match[1].trim().split(',').map(v => v.trim()).filter(v => v);
+    }
+  }
+
+  const lrSettings = {};
+  const settingsArray = settings.split(',');
+  
+  for (const setting of settingsArray) {
+    const [key, value] = setting.trim().split(' = ');
+    if (key && value) {
+      // Remove any quotes from the value
+      const cleanValue = value.replace(/"/g, '');
+      // Convert to number if it's numeric, otherwise keep as string
+      const finalValue = !isNaN(parseFloat(cleanValue)) && cleanValue !== '' 
+        ? parseFloat(cleanValue)
+        : cleanValue;
+      lrSettings[key.trim()] = finalValue;
+    }
+  }
+
+  return { ...lrSettings, ...toneCurve };
+}
+
+function lrToXmp(lrSettings) {
   const xmpStart =
     '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6-c011 79.156380, 2014/05/21-23:38:37        ">\n' +
     ' <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n' +
@@ -325,85 +413,3 @@ export function lrToXmp(lrSettings) {
   result += xmpEnd;
   return result;
 }
-
-export function getLrArray(lrContent) {
-  const settingsMatch = lrContent.match(/settings = {([\n\s]*)([^>]*)},([\n\s]*)uuid/);
-  const settings = settingsMatch ? settingsMatch[2] : '';
-  
-  const toneCurveTypes = [
-    'ToneCurvePV2012',
-    'ToneCurvePV2012Blue',
-    'ToneCurvePV2012Green',
-    'ToneCurvePV2012Red'
-  ];
-
-  const lrArr = {};
-
-  // Extract tone curves
-  for (const curveType of toneCurveTypes) {
-    const curveMatch = settings.match(new RegExp(`${curveType} = {([^}]*)}`, 'is'));
-    if (curveMatch) {
-      const points = curveMatch[1].match(/(-?\d+\.?\d*)/g);
-      if (points) {
-        lrArr[curveType] = points.map(p => parseFloat(p));
-      }
-    }
-  }
-
-  // Extract other settings
-  const settingMatches = settings.matchAll(/(\w+) = "?([^",\n}]+)"?,?/g);
-  for (const match of settingMatches) {
-    const [, key, value] = match;
-    if (!toneCurveTypes.includes(key)) {
-      lrArr[key] = value;
-    }
-  }
-
-  return lrArr;
-}
-
-// Export the Cloudflare Worker handler
-export default {
-  async fetch(request, env, ctx) {
-    if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
-    }
-
-    const formData = await request.formData();
-    const file = formData.get('preset');
-    
-    if (!file) {
-      return new Response('No file uploaded', { status: 400 });
-    }
-
-    const fileName = file.name;
-    const presetType = fileName.split('.').pop().toLowerCase();
-    const presetName = fileName.replace(`.${presetType}`, '');
-
-    const fileContent = await file.text();
-
-    let content;
-    let outputFileName;
-
-    if (presetType === 'xmp') {
-      outputFileName = `${presetName}.lrtemplate`;
-      const presetArr = getXmpArray(fileContent);
-      const cleanPresetArr = xmpArrClean(presetArr);
-      content = xmpToLr(cleanPresetArr, presetName);
-    } else if (presetType === 'lrtemplate') {
-      outputFileName = `${presetName}.xmp`;
-      const presetArr = getLrArray(fileContent);
-      const cleanPresetArr = lrArrClean(presetArr);
-      content = lrToXmp(cleanPresetArr);
-    } else {
-      return new Response('Invalid file type', { status: 400 });
-    }
-
-    return new Response(content, {
-      headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${outputFileName}"`,
-      },
-    });
-  }
-};

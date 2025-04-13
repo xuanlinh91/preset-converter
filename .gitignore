@@ -21,3 +21,4 @@ yarn-error.log
 nohup.out
 .DS_Store
 node_modules
+tmp
